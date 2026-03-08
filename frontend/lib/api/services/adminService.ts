@@ -8,6 +8,8 @@ import {
   CreateUserForm,
   CreateClassForm,
   CreateFeeStructureForm,
+  UserRole,
+  PaymentStatus,
 } from '@/lib/types';
 import {
   dummyUsers,
@@ -17,6 +19,7 @@ import {
   dummyAttendance,
   dummyFeePayments,
 } from '@/lib/api/dummyData';
+import { apiClient } from '@/lib/api/client';
 
 export const adminService = {
   async getUsers(): Promise<ApiResponse<User[]>> {
@@ -191,17 +194,13 @@ export const adminService = {
           totalStudents: dummyStudents.length,
           totalTeachers: dummyUsers.filter((u) => u.role === UserRole.TEACHER).length,
           totalClasses: dummyClasses.length,
-          totalFeesPending: dummyFeePayments
-            .filter((p) => p.status === PaymentStatus.PENDING)
-            .reduce((sum, p) => sum + p.amount, 0),
-          feesCollected: dummyFeePayments
+          totalFeeCollected: dummyFeePayments
             .filter((p) => p.status === PaymentStatus.COMPLETED)
             .reduce((sum, p) => sum + p.amount, 0),
-          pendingPayments: dummyFeePayments
+          pendingFees: dummyFeePayments
             .filter((p) => p.status === PaymentStatus.PENDING)
             .reduce((sum, p) => sum + p.amount, 0),
           attendancePercentage,
-          averageAttendance: attendancePercentage,
         };
         resolve({
           success: true,
@@ -209,5 +208,45 @@ export const adminService = {
         });
       }, 500);
     });
+  },
+
+  async assignClassRepresentative(
+    classId: number,
+    studentId: number
+  ): Promise<ApiResponse<Class>> {
+    try {
+      const response = await apiClient.post(`/classes/${classId}/assign-representative`, null, {
+        params: { studentId },
+      });
+      return {
+        success: true,
+        data: response.data.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to assign class representative',
+      };
+    }
+  },
+
+  async assignResponsibleTeacher(
+    classId: number,
+    teacherId: number
+  ): Promise<ApiResponse<Class>> {
+    try {
+      const response = await apiClient.post(`/classes/${classId}/assign-teacher`, null, {
+        params: { teacherId },
+      });
+      return {
+        success: true,
+        data: response.data.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to assign responsible teacher',
+      };
+    }
   },
 };

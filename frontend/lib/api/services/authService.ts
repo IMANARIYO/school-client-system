@@ -1,5 +1,5 @@
-import { LoginCredentials, User, ApiResponse } from '@/lib/types';
-import { dummyUsers } from '@/lib/api/dummyData';
+import { LoginCredentials, User, ApiResponse } from "@/lib/types";
+import { dummyUsers } from "@/lib/api/dummyData";
 
 interface RegisterData {
   email: string;
@@ -9,11 +9,14 @@ interface RegisterData {
 }
 
 export const authService = {
-  async login(credentials: LoginCredentials): Promise<ApiResponse<{ user: User; token: string }>> {
+  async login(
+    credentials: LoginCredentials
+  ): Promise<ApiResponse<{ user: User; token: string }>> {
     return new Promise((resolve) => {
       setTimeout(() => {
+        console.log("Login attempt:", credentials);
         const user = dummyUsers.find((u) => u.email === credentials.email);
-        if (user && credentials.password === 'password') {
+        if (user && credentials.password === "password") {
           resolve({
             success: true,
             data: {
@@ -24,7 +27,7 @@ export const authService = {
         } else {
           resolve({
             success: false,
-            error: 'Invalid email or password',
+            error: "Invalid email or password",
           });
         }
       }, 500);
@@ -38,7 +41,7 @@ export const authService = {
           id: `user_${Date.now()}`,
           email: data.email,
           fullName: data.fullName,
-          role: 'student' as any,
+          role: "student" as any,
           phone: data.phone,
           createdAt: new Date().toISOString(),
         };
@@ -50,12 +53,15 @@ export const authService = {
     });
   },
 
-  async verifyDevice(userId: string, code: string): Promise<ApiResponse<boolean>> {
+  async verifyDevice(
+    userId: string,
+    code: string
+  ): Promise<ApiResponse<boolean>> {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({
-          success: code === '123456',
-          data: code === '123456',
+          success: code === "123456",
+          data: code === "123456",
         });
       }, 500);
     });
@@ -64,9 +70,10 @@ export const authService = {
   async getCurrentUser(): Promise<ApiResponse<User>> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const token =
+          typeof window !== "undefined" ? localStorage.getItem("token") : null;
         if (token) {
-          const userId = token.split('_')[1];
+          const userId = token.split("_")[1];
           const user = dummyUsers.find((u) => u.id === userId);
           if (user) {
             resolve({
@@ -78,7 +85,7 @@ export const authService = {
         }
         resolve({
           success: false,
-          error: 'Not authenticated',
+          error: "Not authenticated",
         });
       }, 300);
     });

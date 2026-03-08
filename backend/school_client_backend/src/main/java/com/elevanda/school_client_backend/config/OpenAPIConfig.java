@@ -26,7 +26,7 @@ public class OpenAPIConfig {
                 .info(new Info()
                         .title("Inventory Management System API")
                         .version("1.0.0")
-                        .description("Spring Boot REST API for managing inventory users and authentication.")
+                        .description("Spring Boot REST API for managing student, schools classes,    parents   and authentication.")
                         .termsOfService("https://example.com/terms")
                         .contact(new Contact()
                                 .name("IMANARIYO Baptiste")

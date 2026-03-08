@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Edit2, Trash2, Eye } from 'lucide-react';
-import { Student, EnrollmentStatus } from '@/lib/types';
+import { Student } from '@/lib/types';
 import { studentService } from '@/lib/api/services/studentService';
 import { useToast } from '@/hooks/use-toast';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
@@ -30,7 +30,7 @@ export default function StudentsManagementPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<EnrollmentStatus | 'ALL'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [formOpen, setFormOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -94,7 +94,7 @@ export default function StudentsManagementPage() {
     if (!deletingStudent) return;
     
     try {
-      const response = await studentService.deleteStudent(deletingStudent.id);
+      const response = await studentService.deleteStudent(Number(deletingStudent.id));
       if (response.success) {
         await loadStudents();
         toast({
@@ -115,8 +115,8 @@ export default function StudentsManagementPage() {
   };
 
   const filteredStudents = students.filter((student) =>
-    student.user_id.toString().includes(searchTerm) ||
-    student.roll_number?.toLowerCase().includes(searchTerm.toLowerCase())
+    student.userId.includes(searchTerm) ||
+    student.rollNumber?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading && students.length === 0) {
@@ -140,7 +140,7 @@ export default function StudentsManagementPage() {
         <Select
           value={statusFilter}
           onValueChange={(value) => {
-            setStatusFilter(value as EnrollmentStatus | 'ALL');
+            setStatusFilter(value);
             loadStudents();
           }}
         >
@@ -173,20 +173,16 @@ export default function StudentsManagementPage() {
           <TableBody>
             {filteredStudents.map((student) => (
               <TableRow key={student.id}>
-                <TableCell>{student.roll_number || '-'}</TableCell>
-                <TableCell>{student.user_id}</TableCell>
-                <TableCell>{student.current_grade || '-'}</TableCell>
-                <TableCell>{student.section || '-'}</TableCell>
+                <TableCell>{student.rollNumber || '-'}</TableCell>
+                <TableCell>{student.userId}</TableCell>
+                <TableCell>{student.classId || '-'}</TableCell>
+                <TableCell>-</TableCell>
                 <TableCell>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    student.enrollment_status === 'ACTIVE'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {student.enrollment_status}
+                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Active
                   </span>
                 </TableCell>
-                <TableCell>{new Date(student.enrollment_date).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(student.enrollmentDate).toLocaleDateString()}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
                     <Button
@@ -221,7 +217,7 @@ export default function StudentsManagementPage() {
       <DeleteConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        itemName={`Student ${deletingStudent?.roll_number}`}
+        itemName={`Student ${deletingStudent?.rollNumber}`}
         onConfirm={handleConfirmDelete}
       />
     </div>

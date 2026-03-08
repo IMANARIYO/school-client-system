@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Class } from '@/lib/types';
 import { FormDialog } from './FormDialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { adminService } from '@/lib/api/services/adminService';
 
 interface ClassFormDialogProps {
   open: boolean;
@@ -21,6 +22,7 @@ export default function ClassFormDialog({
   onSuccess,
 }: ClassFormDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [classes, setClasses] = useState<Class[]>([]);
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     grade_level: initialData?.grade_level || '',
@@ -33,15 +35,88 @@ export default function ClassFormDialog({
   });
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (open) {
+      loadClasses();
+    }
+  }, [open]);
+
+  const loadClasses = async () => {
+    const response = await adminService.getClasses();
+    if (response.success && response.data) {
+      setClasses(response.data);
+    }
+  };
+
+  const validateUniqueAssignment = () => {
+    const teacherId = formData.responsible_teacher.trim();
+    const studentId = formData.class_representative.trim();
+
+    if (teacherId) {
+      const existingClass = classes.find(
+        (c) => c.responsible_teacher === teacherId && c.id !== initialData?.id
+      );
+      if (existingClass) {
+        toast({
+          title: 'Validation Error',
+          description: `Teacher is already assigned to class ${existingClass.name}`,
+          variant: 'destructive',
+        });
+        return false;
+      }
+    }
+
+    if (studentId) {
+      const existingClass = classes.find(
+        (c) => c.class_representative === studentId && c.id !== initialData?.id
+      );
+      if (existingClass) {
+        toast({
+          title: 'Validation Error',
+          description: `Student is already class representative of ${existingClass.name}`,
+          variant: 'destructive',
+        });
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateUniqueAssignment()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 500));
+      
+      if (formData.class_representative) {
+        const repResponse = await adminService.assignClassRepresentative(
+          Number(initialData?.id || 0),
+          Number(formData.class_representative)
+        );
+        if (!repResponse.success) {
+          throw new Error(repResponse.error);
+        }
+      }
+      
+      if (formData.responsible_teacher) {
+        const teacherResponse = await adminService.assignResponsibleTeacher(
+          Number(initialData?.id || 0),
+          Number(formData.responsible_teacher)
+        );
+        if (!teacherResponse.success) {
+          throw new Error(teacherResponse.error);
+        }
+      }
+      
       onSuccess?.();
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Error',
         description: 'An error occurred',
