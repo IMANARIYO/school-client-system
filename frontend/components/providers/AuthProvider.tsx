@@ -8,42 +8,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setUser = useAuthStore((state) => state.setUser);
   const setIsLoading = useAuthStore((state) => state.setIsLoading);
   const setError = useAuthStore((state) => state.setError);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      
+      if (typeof window === 'undefined') return;
+
+      const token = localStorage.getItem('token');
       if (!token) {
-        setUser(null);
+        logout();
         return;
       }
 
       try {
         setIsLoading(true);
         const response = await authService.getCurrentUser();
+
         if (response.success && response.data) {
           setUser(response.data);
+          // Only store userRole for convenience
           localStorage.setItem('userRole', response.data.role);
           document.cookie = `userRole=${response.data.role}; path=/`;
         } else {
-          localStorage.removeItem('token');
-          localStorage.removeItem('userRole');
-          document.cookie = 'userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-          setUser(null);
+          logout();
         }
-      } catch (error) {
+      } catch (err) {
         setError('Failed to verify authentication');
-        localStorage.removeItem('token');
-        localStorage.removeItem('userRole');
-        document.cookie = 'userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-        setUser(null);
+        logout();
       } finally {
         setIsLoading(false);
       }
     };
 
     initializeAuth();
-  }, [setUser, setIsLoading, setError]);
+  }, [setUser, setIsLoading, setError, logout]);
 
   return <>{children}</>;
 }

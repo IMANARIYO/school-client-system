@@ -29,19 +29,19 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-  label: 'Dashboard',
-  href: '/admin/dashboard',
-  icon: <Home className="w-4 h-4" />,
-  roles: [UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT],
+    label: 'Dashboard',
+    href: '/admin/dashboard',
+    icon: <Home className="w-4 h-4" />,
+    roles: [UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT],
   },
   {
-  label: 'Dashboard',
-  href: '/parent/dashboard',
-  icon: <Home className="w-4 h-4" />,
-  roles: [UserRole.PARENT],
+    label: 'Dashboard',
+    href: '/parent/dashboard',
+    icon: <Home className="w-4 h-4" />,
+    roles: [UserRole.PARENT],
   },
   {
-  label: 'Analytics',
+    label: 'Analytics',
     href: '/admin/analytics',
     icon: <BarChart3 className="w-4 h-4" />,
     roles: [UserRole.ADMIN],
@@ -83,41 +83,45 @@ const navItems: NavItem[] = [
     roles: [UserRole.STUDENT],
   },
   {
-  label: 'My Attendance',
-  href: '/student/attendance',
-  icon: <ClipboardList className="w-4 h-4" />,
-  roles: [UserRole.STUDENT],
+    label: 'My Attendance',
+    href: '/student/attendance',
+    icon: <ClipboardList className="w-4 h-4" />,
+    roles: [UserRole.STUDENT],
   },
   {
-  label: 'My Fees',
-  href: '/student/fees',
-  icon: <CreditCard className="w-4 h-4" />,
-  roles: [UserRole.STUDENT],
+    label: 'My Fees',
+    href: '/student/fees',
+    icon: <CreditCard className="w-4 h-4" />,
+    roles: [UserRole.STUDENT],
   },
   {
-  label: 'My Children',
-  href: '/parent/children',
-  icon: <GraduationCap className="w-4 h-4" />,
-  roles: [UserRole.PARENT],
+    label: 'My Children',
+    href: '/parent/children',
+    icon: <GraduationCap className="w-4 h-4" />,
+    roles: [UserRole.PARENT],
   },
   {
-  label: 'My Fees',
-  href: '/parent/fees',
-  icon: <CreditCard className="w-4 h-4" />,
-  roles: [UserRole.PARENT],
+    label: 'My Fees',
+    href: '/parent/fees',
+    icon: <CreditCard className="w-4 h-4" />,
+    roles: [UserRole.PARENT],
   },
   {
-  label: 'Settings',
-  href: '/settings',
-  icon: <Settings className="w-4 h-4" />,
-  roles: [UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT, UserRole.PARENT],
+    label: 'Settings',
+    href: '/settings',
+    icon: <Settings className="w-4 h-4" />,
+    roles: [UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT, UserRole.PARENT],
   },
-  ];
+];
 
 export function Sidebar() {
   const pathname = usePathname();
   const user = useAuthStore((state) => state.user);
+
   const logout = useAuthStore((state) => state.logout);
+
+  console.log("the currently  logged in user is ", user)
+
 
   const filteredNavItems = navItems.filter((item) => !user || item.roles.includes(user.role));
 

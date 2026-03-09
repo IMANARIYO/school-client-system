@@ -73,7 +73,7 @@ public class TeacherMapper {
                 .specialization(dto.getSpecialization())
                 .qualification(dto.getQualification())
                 .yearsOfExperience(dto.getYearsOfExperience())
-                .subjectsCanTeach(dto.getSubjectIds())
+//                .subjectsCanTeach(dto.getSubjectIds())
                 .gradeLevelsCanTeach(dto.getGradeLevelsCanTeach())
                 .bankName(dto.getBankName())
                 .bankBranch(dto.getBankBranch())

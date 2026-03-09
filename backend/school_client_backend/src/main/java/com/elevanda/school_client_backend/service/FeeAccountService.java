@@ -4,6 +4,7 @@ import com.elevanda.school_client_backend.dto.FeeAccountRequestDTO;
 import com.elevanda.school_client_backend.dto.FeeAccountResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 

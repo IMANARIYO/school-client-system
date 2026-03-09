@@ -1,4 +1,4 @@
-package com.elevenda.school_client_backend.service.impl;
+package com.elevanda.school_client_backend.service.impl;
 
 import com.elevanda.school_client_backend.dto.FeeAccountRequestDTO;
 import com.elevanda.school_client_backend.dto.FeeAccountResponseDTO;

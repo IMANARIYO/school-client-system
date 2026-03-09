@@ -8,6 +8,7 @@ import com.elevanda.school_client_backend.service.FeeAccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ import java.math.BigDecimal;
 @RequestMapping("/api/v1/fee-accounts")
 @RequiredArgsConstructor
 public class FeeAccountController {
-
+@Autowired
     private final FeeAccountService feeAccountService;
 
     @Operation(summary = "Create fee account", tags = {"Fee Account Management"})
