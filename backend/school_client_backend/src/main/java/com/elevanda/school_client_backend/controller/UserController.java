@@ -48,13 +48,19 @@ public class UserController {
     )
     @PostMapping("/login")
     public ResponseEntity<StandardApiResponse<AuthResponseDTO>> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
-        AuthResponseDTO authResponse = userService.login(loginRequest);
-        System.out.println("LOGIN REQUEST RECEIVED");
-        System.out.println("Email: " + loginRequest.getEmail());
-        System.out.println("Password: " + loginRequest.getPassword());
-        return ResponseEntity.ok(new StandardApiResponse<>(true, "Login successful", authResponse));
-    }
 
+        System.out.println("LOGIN ENDPOINT HIT");
+        System.out.println("Email: " + loginRequest.getEmail());
+
+        AuthResponseDTO authResponse = userService.login(loginRequest);
+
+        System.out.println("LOGIN SUCCESSFUL");
+        System.out.println("Token: " + authResponse.getToken());
+
+        return ResponseEntity.ok(
+                new StandardApiResponse<>(true, "Login successful", authResponse)
+        );
+    }
     @Operation(
             summary = "Refresh access token",
             description = "Use a valid refresh token to get a new access token",

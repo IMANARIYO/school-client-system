@@ -1,8 +1,8 @@
-import { create } from 'zustand';
-import { User, UserRole, AuthState } from '@/lib/types';
+import { create } from "zustand";
+import { UserProfile, AuthState } from "@/lib/types";
 
 interface AuthStore extends AuthState {
-  setUser: (user: User | null) => void;
+  setUser: (user: UserProfile | null) => void;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
   setIsLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
@@ -16,12 +16,11 @@ const initialState: AuthState = {
   isLoading: false,
   error: null,
 };
-
 export const useAuthStore = create<AuthStore>((set) => ({
   ...initialState,
 
   setUser: (user) =>
-    set((state) => ({
+    set(() => ({
       user,
       isAuthenticated: !!user,
     })),
@@ -41,13 +40,23 @@ export const useAuthStore = create<AuthStore>((set) => ({
       error,
     })),
 
-  logout: () =>
-    set(() => ({
-      ...initialState,
-    })),
+  logout: () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      // don't store role separately, server provides role securely
+      document.cookie =
+        "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie =
+        "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    }
 
-  clearError: () =>
     set(() => ({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
       error: null,
-    })),
+    }));
+  },
+
+  clearError: () => set(() => ({ error: null })),
 }));

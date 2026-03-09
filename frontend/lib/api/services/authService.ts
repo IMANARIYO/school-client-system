@@ -1,5 +1,6 @@
-import { LoginCredentials, User, ApiResponse } from "@/lib/types";
+import { LoginCredentials, User, ApiResponse, UserProfile } from "@/lib/types";
 import { dummyUsers } from "@/lib/api/dummyData";
+import { apiClient } from "../client";
 
 interface RegisterData {
   email: string;
@@ -11,27 +12,25 @@ interface RegisterData {
 export const authService = {
   async login(
     credentials: LoginCredentials
-  ): Promise<ApiResponse<{ user: User; token: string }>> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log("Login attempt:", credentials);
-        const user = dummyUsers.find((u) => u.email === credentials.email);
-        if (user && credentials.password === "password") {
-          resolve({
-            success: true,
-            data: {
-              user,
-              token: `token_${user.id}`,
-            },
-          });
-        } else {
-          resolve({
-            success: false,
-            error: "Invalid email or password",
-          });
-        }
-      }, 500);
-    });
+  ): Promise<
+    ApiResponse<{ email: string; token: string; refreshToken: string }>
+  > {
+    try {
+      const response = await apiClient.post<
+        ApiResponse<{ email: string; token: string; refreshToken: string }>
+      >("/v1/users/login", credentials);
+
+      const result = response.data;
+
+      return result.success && result.data
+        ? { success: true, data: result.data, message: result.message }
+        : { success: false, error: result.message };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || "Login failed",
+      };
+    }
   },
 
   async register(data: RegisterData): Promise<ApiResponse<User>> {
@@ -66,29 +65,32 @@ export const authService = {
       }, 500);
     });
   },
+  async getCurrentUser(): Promise<ApiResponse<UserProfile>> {
+    try {
+      const response = await apiClient.get<ApiResponse<UserProfile>>(
+        "/v1/users/me"
+      );
 
-  async getCurrentUser(): Promise<ApiResponse<User>> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const token =
-          typeof window !== "undefined" ? localStorage.getItem("token") : null;
-        if (token) {
-          const userId = token.split("_")[1];
-          const user = dummyUsers.find((u) => u.id === userId);
-          if (user) {
-            resolve({
-              success: true,
-              data: user,
-            });
-            return;
-          }
-        }
-        resolve({
-          success: false,
-          error: "Not authenticated",
-        });
-      }, 300);
-    });
+      const result = response.data;
+
+      if (result.success && result.data) {
+        return {
+          success: true,
+          data: result.data,
+          message: result.message,
+        };
+      }
+
+      return {
+        success: false,
+        error: result.message || "Failed to fetch current user",
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || "Failed to fetch current user",
+      };
+    }
   },
 
   async logout(): Promise<ApiResponse<void>> {

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
+// import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 import './globals.css'
@@ -12,23 +12,7 @@ export const metadata: Metadata = {
   title: 'EduManage - School Management System',
   description: 'Modern school management system for admins, teachers, students, and parents',
   generator: 'v0.app',
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
+
 }
 
 export default function RootLayout({
@@ -43,7 +27,7 @@ export default function RootLayout({
           {children}
         </AuthProvider>
         <Toaster />
-        <Analytics />
+        {/* <Analytics debug={false} /> */}
       </body>
     </html>
   )

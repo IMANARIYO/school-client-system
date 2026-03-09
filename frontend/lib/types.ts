@@ -1,9 +1,9 @@
 // Authentication Types
 export enum UserRole {
-  ADMIN = 'admin',
-  TEACHER = 'teacher',
-  STUDENT = 'student',
-  PARENT = 'parent',
+  ADMIN = "ADMIN",
+  TEACHER = "TEACHER",
+  STUDENT = "STUDENT",
+  PARENT = "PARENT",
 }
 
 export interface User {
@@ -15,9 +15,36 @@ export interface User {
   profileImage?: string;
   createdAt: string;
 }
+export interface JWTClaims {
+  userId: string;
+  role: UserRole;
+  fullName: string;
+  email: string;
+  permissions: string[];
+}
+export enum UsersStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  SUSPENDED = "SUSPENDED",
+}
+
+export interface UserProfile {
+  id: number;
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  role: UserRole;
+  imageUrl?: string;
+  status: UsersStatus;
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  lastLoginAt?: string;
+}
 
 export interface AuthState {
-  user: User | null;
+  user: UserProfile | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -82,11 +109,11 @@ export interface Grade {
 }
 
 export enum ExamType {
-  UNIT_TEST = 'unit_test',
-  TERM_EXAM = 'term_exam',
-  PRACTICAL = 'practical',
-  PROJECT = 'project',
-  ASSIGNMENT = 'assignment',
+  UNIT_TEST = "unit_test",
+  TERM_EXAM = "term_exam",
+  PRACTICAL = "practical",
+  PROJECT = "project",
+  ASSIGNMENT = "assignment",
 }
 
 export interface Attendance {
@@ -99,10 +126,10 @@ export interface Attendance {
 }
 
 export enum AttendanceStatus {
-  PRESENT = 'present',
-  ABSENT = 'absent',
-  LATE = 'late',
-  LEAVE = 'leave',
+  PRESENT = "present",
+  ABSENT = "absent",
+  LATE = "late",
+  LEAVE = "leave",
 }
 
 // Fee Management Types
@@ -116,12 +143,12 @@ export interface FeeStructure {
 }
 
 export enum FeeType {
-  TUITION = 'tuition',
-  TRANSPORT = 'transport',
-  SPORTS = 'sports',
-  LIBRARY = 'library',
-  UNIFORM = 'uniform',
-  EXTRA_CURRICULAR = 'extra_curricular',
+  TUITION = "tuition",
+  TRANSPORT = "transport",
+  SPORTS = "sports",
+  LIBRARY = "library",
+  UNIFORM = "uniform",
+  EXTRA_CURRICULAR = "extra_curricular",
 }
 
 export interface FeePayment {
@@ -137,18 +164,18 @@ export interface FeePayment {
 }
 
 export enum PaymentMethod {
-  CASH = 'cash',
-  CHEQUE = 'cheque',
-  BANK_TRANSFER = 'bank_transfer',
-  CARD = 'card',
-  ONLINE = 'online',
+  CASH = "cash",
+  CHEQUE = "cheque",
+  BANK_TRANSFER = "bank_transfer",
+  CARD = "card",
+  ONLINE = "online",
 }
 
 export enum PaymentStatus {
-  PENDING = 'pending',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  REFUNDED = 'refunded',
+  PENDING = "pending",
+  COMPLETED = "completed",
+  FAILED = "failed",
+  REFUNDED = "refunded",
 }
 
 export interface StudentFeeRecord {
@@ -174,12 +201,12 @@ export interface Notification {
 }
 
 export enum NotificationType {
-  GRADE_PUBLISHED = 'grade_published',
-  ATTENDANCE_ALERT = 'attendance_alert',
-  FEE_DUE = 'fee_due',
-  ASSIGNMENT_SUBMITTED = 'assignment_submitted',
-  ANNOUNCEMENT = 'announcement',
-  SYSTEM = 'system',
+  GRADE_PUBLISHED = "grade_published",
+  ATTENDANCE_ALERT = "attendance_alert",
+  FEE_DUE = "fee_due",
+  ASSIGNMENT_SUBMITTED = "assignment_submitted",
+  ANNOUNCEMENT = "announcement",
+  SYSTEM = "system",
 }
 
 // Teacher Types
@@ -221,14 +248,14 @@ export interface AdminActions {
 }
 
 export enum AdminActionType {
-  CREATE_USER = 'create_user',
-  UPDATE_USER = 'update_user',
-  DELETE_USER = 'delete_user',
-  CREATE_CLASS = 'create_class',
-  UPDATE_CLASS = 'update_class',
-  DELETE_CLASS = 'delete_class',
-  MANAGE_FEES = 'manage_fees',
-  MANAGE_GRADES = 'manage_grades',
+  CREATE_USER = "create_user",
+  UPDATE_USER = "update_user",
+  DELETE_USER = "delete_user",
+  CREATE_CLASS = "create_class",
+  UPDATE_CLASS = "update_class",
+  DELETE_CLASS = "delete_class",
+  MANAGE_FEES = "manage_fees",
+  MANAGE_GRADES = "manage_grades",
 }
 
 // API Response Types
@@ -297,7 +324,7 @@ export interface PaginationParams {
   page: number;
   limit: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export interface FilterParams {

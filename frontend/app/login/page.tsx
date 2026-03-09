@@ -3,16 +3,19 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import { jwtDecode } from "jwt-decode";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { GraduationCap } from 'lucide-react';
-import { LoginCredentials, UserRole } from '@/lib/types';
+import { LoginCredentials, UserRole, UserProfile, JWTClaims } from '@/lib/types';
 import { authService } from '@/lib/api/services/authService';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { useToast } from '@/hooks/use-toast';
 import { ErrorAlert } from '@/components/common/ErrorAlert';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,7 +25,7 @@ export default function LoginPage() {
   const setUser = useAuthStore((state) => state.setUser);
   const { toast } = useToast();
 
-  const getRoleName = (role: string): string => {
+  const getRoleName = (role: string) => {
     const roleNames: Record<string, string> = {
       [UserRole.ADMIN]: 'Administrator',
       [UserRole.TEACHER]: 'Teacher',
@@ -31,49 +34,57 @@ export default function LoginPage() {
     };
     return roleNames[role] || role;
   };
-
   const onSubmit = async (credentials: LoginCredentials) => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      setIsLoading(true);
-      setError(null);
+      // 1️⃣ Login and get JWT
+      const loginResponse = await authService.login(credentials);
 
-      const response = await authService.login(credentials);
-
-      if (response.success && response.data) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('userRole', response.data.user.role);
-        document.cookie = `token=${response.data.token}; path=/`;
-        document.cookie = `userRole=${response.data.user.role}; path=/`;
-        setUser(response.data.user);
-        
-        const dashboardMap: Record<string, string> = {
-          [UserRole.ADMIN]: '/admin/dashboard',
-          [UserRole.TEACHER]: '/teacher/dashboard',
-          [UserRole.STUDENT]: '/student/dashboard',
-          [UserRole.PARENT]: '/parent/dashboard',
-        };
-
-        const roleName = getRoleName(response.data.user.role);
-        toast({
-          title: 'Welcome back!',
-          description: `Logged in as ${roleName}. Redirecting to dashboard...`,
-        });
-
-        setTimeout(() => {
-          router.push(dashboardMap[response.data.user.role] || '/');
-        }, 1000);
-      } else {
-        setError(response.error || 'Login failed');
+      if (!loginResponse.success || !loginResponse.data) {
+        setError(loginResponse.error || "Login failed");
+        return;
       }
+
+      const token = loginResponse.data.token;
+
+      // 2️⃣ Store only JWT
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', token);
+
+        document.cookie = `token=${token}; path=/;`;
+      }
+
+      // 3️⃣ Decode token to get role
+      const decoded = jwtDecode<JWTClaims>(token);
+
+      // 4️⃣ Redirect based on role (server-trusted)
+      const dashboardMap: Record<UserRole, string> = {
+        [UserRole.ADMIN]: '/admin/dashboard',
+        [UserRole.TEACHER]: '/teacher/dashboard',
+        [UserRole.STUDENT]: '/student/dashboard',
+        [UserRole.PARENT]: '/parent/dashboard',
+      };
+
+      toast({
+        title: `Welcome back!`,
+        description: `Logged in as ${getRoleName(decoded.role)}. Redirecting...`,
+      });
+
+      setTimeout(() => {
+        router.push(dashboardMap[decoded.role] || '/');
+      }, 1000);
+
     } catch (err) {
-      setError('An error occurred during login');
+      setError("An error occurred during login");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-900/10 to-slate-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-blue-900/10 to-slate-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card className="bg-slate-900 border-slate-800 shadow-2xl">
           <CardHeader className="space-y-2 text-center">
@@ -90,10 +101,7 @@ export default function LoginPage() {
 
           <CardContent>
             {error && (
-              <ErrorAlert 
-                message={error}
-                onDismiss={() => setError(null)}
-              />
+              <ErrorAlert message={error} onDismiss={() => setError(null)} />
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -105,9 +113,7 @@ export default function LoginPage() {
                   placeholder="admin@school.com"
                   className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                 />
-                {errors.email && (
-                  <p className="text-red-400 text-sm">{errors.email.message}</p>
-                )}
+                {errors.email && <p className="text-red-400 text-sm">{errors.email.message}</p>}
               </div>
 
               <div className="space-y-2">
@@ -118,16 +124,10 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                 />
-                {errors.password && (
-                  <p className="text-red-400 text-sm">{errors.password.message}</p>
-                )}
+                {errors.password && <p className="text-red-400 text-sm">{errors.password.message}</p>}
               </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700"
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
                 {isLoading ? <LoadingSpinner size="sm" text="" /> : 'Sign In'}
               </Button>
             </form>

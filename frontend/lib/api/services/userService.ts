@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { User, UserStatus } from '@/lib/types';
-import { ApiResponse } from '@/lib/types';
-import { dummyUsers } from '@/lib/api/dummyData';
+import { User, UsersStatus } from "@/lib/types";
+import { ApiResponse } from "@/lib/types";
+import { dummyUsers } from "@/lib/api/dummyData";
 
 interface CreateUserPayload {
   first_name: string;
@@ -17,23 +17,19 @@ interface CreateUserPayload {
 interface UpdateUserPayload {
   phone?: string;
   profile_picture?: string;
-  status?: UserStatus;
+  status?: UsersStatus;
 }
 
 export const userService = {
-  async getUsers(filters?: { role?: string; status?: UserStatus }): Promise<ApiResponse<User[]>> {
+  async getUsers(filters?: { role?: string }): Promise<ApiResponse<User[]>> {
     return new Promise((resolve) => {
       setTimeout(() => {
         let users = [...dummyUsers];
-        
+
         if (filters?.role) {
           users = users.filter((u) => u.role === filters.role);
         }
-        
-        if (filters?.status) {
-          users = users.filter((u) => u.status === filters.status);
-        }
-        
+
         resolve({
           success: true,
           data: users,
@@ -54,7 +50,7 @@ export const userService = {
         } else {
           resolve({
             success: false,
-            error: 'User not found',
+            error: "User not found",
           });
         }
       }, 300);
@@ -72,13 +68,13 @@ export const userService = {
           role: payload.role as any,
           phone: payload.phone,
           profile_picture: payload.profile_picture,
-          status: 'ACTIVE' as UserStatus,
+          status: "ACTIVE" as UserStatus,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
-        
+
         dummyUsers.push(newUser);
-        
+
         resolve({
           success: true,
           data: newUser,
@@ -96,10 +92,11 @@ export const userService = {
         const user = dummyUsers.find((u) => u.id === userId);
         if (user) {
           if (payload.phone) user.phone = payload.phone;
-          if (payload.profile_picture) user.profile_picture = payload.profile_picture;
+          if (payload.profile_picture)
+            user.profile_picture = payload.profile_picture;
           if (payload.status) user.status = payload.status;
           user.updated_at = new Date().toISOString();
-          
+
           resolve({
             success: true,
             data: user,
@@ -107,7 +104,7 @@ export const userService = {
         } else {
           resolve({
             success: false,
-            error: 'User not found',
+            error: "User not found",
           });
         }
       }, 500);
@@ -126,7 +123,7 @@ export const userService = {
         } else {
           resolve({
             success: false,
-            error: 'User not found',
+            error: "User not found",
           });
         }
       }, 500);
@@ -150,7 +147,7 @@ export const userService = {
         } else {
           resolve({
             success: false,
-            error: 'User not found',
+            error: "User not found",
           });
         }
       }, 500);

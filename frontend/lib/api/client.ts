@@ -1,7 +1,8 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-import { useAuthStore } from '@/lib/stores/authStore';
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import { useAuthStore } from "@/lib/stores/authStore";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081/api";
 
 let axiosInstance: AxiosInstance | null = null;
 
@@ -11,13 +12,14 @@ export const getAxiosInstance = (): AxiosInstance => {
       baseURL: API_BASE_URL,
       timeout: 10000,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     axiosInstance.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const token =
+          typeof window !== "undefined" ? localStorage.getItem("token") : null;
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -32,9 +34,9 @@ export const getAxiosInstance = (): AxiosInstance => {
         if (error.response?.status === 401) {
           const authStore = useAuthStore.getState();
           authStore.logout();
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('token');
-            window.location.href = '/login';
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("token");
+            // window.location.href = "/login";
           }
         }
         return Promise.reject(error);
